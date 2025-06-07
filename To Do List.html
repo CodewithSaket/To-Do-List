@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To Do List</title>
+  <style>
+    /* CSS Variables for color and spacing */
+    :root {
+      --color-bg: #ffffff;
+      --color-text: #374151;
+      --color-text-muted: #6b7280;
+      --color-primary: #111827;
+      --color-primary-light: #1f2937;
+      --color-accent: #2563eb;
+      --color-accent-hover: #1d4ed8;
+      --spacing-sm: 0.75rem;
+      --spacing-md: 1.5rem;
+      --spacing-lg: 2rem;
+      --border-radius: 0.75rem;
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-md: rgba(0, 0, 0, 0.1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      font-size: 18px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-lg) var(--spacing-md);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 3rem;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-primary);
+      text-align: center;
+      user-select: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 640px;
+      background: var(--color-bg);
+      box-shadow: 0 4px 12px var(--shadow-light);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    form {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    form input[type="text"] {
+      flex-grow: 1;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: var(--border-radius);
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+    }
+
+    form input[type="text"]:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 8px var(--color-accent);
+    }
+
+    form button {
+      background-color: var(--color-accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-size: 1rem;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    form button:hover,
+    form button:focus {
+      background-color: var(--color-accent-hover);
+      transform: scale(1.05);
+      outline-offset: 2px;
+      outline: 2px solid transparent;
+    }
+
+    ul#task-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    ul#task-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    ul#task-list::-webkit-scrollbar-thumb {
+      background: var(--color-accent);
+      border-radius: var(--border-radius);
+    }
+    ul#task-list::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+
+    li.task {
+      background-color: #f9fafb;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 3px var(--shadow-light);
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+      user-select: none;
+    }
+
+    li.task:hover {
+      box-shadow: 0 4px 12px var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    li.task.completed label {
+      color: var(--color-text-muted);
+      text-decoration: line-through;
+    }
+
+    li.task input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--color-accent);
+      flex-shrink: 0;
+    }
+
+    li.task label {
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: text;
+      word-break: break-word;
+    }
+
+    button.delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0;
+      transition: color 0.3s ease;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button.delete-btn:hover,
+    button.delete-btn:focus {
+      color: #ef4444;
+      outline-offset: 2px;
+      outline: 2px solid transparent;
+    }
+
+    /* Visually hidden for accessibility */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    footer {
+      margin-top: var(--spacing-lg);
+      font-size: 0.875rem;
+      text-align: center;
+      color: var(--color-text-muted);
+      user-select: none;
+    }
+
+    @media (max-width: 480px) { 
+      form button {
+        padding: 0 1rem;
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        font-size: 2.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>To Do List</h1>
+  <div class="container" role="main" aria-label="To Do List Application">
+    <form id="todo-form" aria-label="Add new task">
+      <label for="todo-input" class="visually-hidden">New task</label>
+      <input type="text" id="todo-input" name="todo" placeholder="Enter new task" autocomplete="off" aria-required="true" />
+      <button type="submit" aria-label="Add task">
+        Add
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+    </form>
+    <ul id="task-list" aria-live="polite" aria-relevant="additions removals" aria-label="Task list"></ul>
+  </div>
+  <footer>Made with ♥ by Saket Raj</footer>
+
+  <script>
+    (() => {
+      const form = document.getElementById('todo-form');
+      const input = document.getElementById('todo-input');
+      const taskList = document.getElementById('task-list');
+
+      // Load tasks from localStorage or initialize empty array
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+      // Save tasks to localStorage
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      // Render the tasks list
+      function render() {
+        taskList.innerHTML = '';
+        if (tasks.length === 0) {
+          const emptyItem = document.createElement('li');
+          emptyItem.textContent = 'No tasks yet. Add a task to get started!';
+          emptyItem.style.color = 'var(--color-text-muted)';
+          emptyItem.style.fontStyle = 'italic';
+          emptyItem.style.padding = '1rem';
+          taskList.appendChild(emptyItem);
+          return;
+        }
+        tasks.forEach(({ id, text, completed }) => {
+          const li = document.createElement('li');
+          li.className = 'task';
+          if (completed) li.classList.add('completed');
+          li.setAttribute('data-id', id);
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = 'check-' + id;
+          checkbox.checked = completed;
+          checkbox.setAttribute('aria-label', 'Mark task as completed');
+
+          const label = document.createElement('label');
+          label.htmlFor = 'check-' + id;
+          label.textContent = text;
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'delete-btn';
+          deleteBtn.setAttribute('aria-label', 'Delete task');
+          deleteBtn.innerHTML = '&times;';
+
+          li.appendChild(checkbox);
+          li.appendChild(label);
+          li.appendChild(deleteBtn);
+          taskList.appendChild(li);
+
+          checkbox.addEventListener('change', () => {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+              task.completed = checkbox.checked;
+              saveTasks();
+              render();
+            }
+          });
+          deleteBtn.addEventListener('click', () => {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            render();
+            input.focus();
+          });
+        });
+      }
+
+      // Add new task
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (text.length === 0) return;
+        tasks.push({
+          id: Date.now().toString(),
+          text,
+          completed: false,
+        });
+        saveTasks();
+        render();
+        input.value = '';
+        input.focus();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
+
