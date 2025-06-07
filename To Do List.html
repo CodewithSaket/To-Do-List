@@ -1,332 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>To Do List</title>
-  <style>
-    /* CSS Variables for color and spacing */
-    :root {
-      --color-bg: #ffffff;
-      --color-text: #374151;
-      --color-text-muted: #6b7280;
-      --color-primary: #111827;
-      --color-primary-light: #1f2937;
-      --color-accent: #2563eb;
-      --color-accent-hover: #1d4ed8;
-      --spacing-sm: 0.75rem;
-      --spacing-md: 1.5rem;
-      --spacing-lg: 2rem;
-      --border-radius: 0.75rem;
-      --shadow-light: rgba(0, 0, 0, 0.05);
-      --shadow-md: rgba(0, 0, 0, 0.1);
-      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>To Do List</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap');
 
-    /* Reset and base */
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background-color: var(--color-bg);
-      color: var(--color-text);
-      font-family: var(--font-sans);
-      font-size: 18px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: var(--spacing-lg) var(--spacing-md);
-    }
+  :root {
+    /* Colors & Spacing */
+    --color-bg: #ffffff;
+    --color-text: #6b7280;
+    --color-primary: #111827;
+    --color-accent: #2563eb;
+    --color-accent-hover: #1d4ed8;
+    --color-accent-active: #1e40af;
+    --color-shadow-light: rgba(37, 99, 235, 0.15);
+    --color-shadow-md: rgba(37, 99, 235, 0.3);
 
-    h1 {
-      font-weight: 700;
-      font-size: 3rem;
-      margin-bottom: var(--spacing-md);
-      color: var(--color-primary);
-      text-align: center;
-      user-select: none;
-    }
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 3rem;
 
+    --border-radius: 0.75rem;
+
+    --font-family: 'Inter', sans-serif;
+
+    /* Animation */
+    --ease-custom: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Reset / Base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--color-bg);
+    font-family: var(--font-family);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-lg) var(--spacing-md);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Large Bold Title */
+  h1 {
+    font-weight: 800;
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    margin: 0 0 var(--spacing-lg);
+    color: var(--color-primary);
+    user-select: none;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  /* Main container with 3D Perspective and smooth tilt animation */
+  .container {
+    max-width: 600px;
+    width: 100%;
+    padding: var(--spacing-lg);
+    background: var(--color-bg);
+    border-radius: var(--border-radius);
+    box-shadow:
+      0 10px 30px var(--color-shadow-light),
+      0 20px 60px var(--color-shadow-md);
+    transform-style: preserve-3d;
+    transition: transform 0.4s var(--ease-custom);
+    will-change: transform;
+    user-select: none;
+  }
+
+  /* 3D Floating animation on container */
+  @keyframes float3d {
+    0%, 100% { transform: translateZ(0) translateY(0) }
+    50% { transform: translateZ(10px) translateY(-10px) }
+  }
+  .container.animate {
+    animation: float3d 6s ease-in-out infinite;
+  }
+
+  form {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  form input[type="text"] {
+    flex-grow: 1;
+    padding: 1rem 1.5rem;
+    font-size: 1.125rem;
+    border-radius: var(--border-radius);
+    border: 2px solid #d1d5db;
+    line-height: 1.4;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    outline-offset: 3px;
+    font-weight: 600;
+    user-select: text;
+  }
+
+  form input[type="text"]:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-accent);
+  }
+
+  form button {
+    background: var(--color-accent);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0 2rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background-color 0.3s var(--ease-custom),
+      transform 0.25s var(--ease-custom),
+      box-shadow 0.3s var(--ease-custom);
+    will-change: transform;
+    user-select: none;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+  }
+
+  form button:hover {
+    background-color: var(--color-accent-hover);
+    transform: scale(1.07);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.6);
+  }
+  form button:active {
+    background-color: var(--color-accent-active);
+    transform: scale(0.96);
+    box-shadow: 0 3px 12px rgba(37, 99, 235, 0.8);
+  }
+
+  form button svg {
+    margin-left: 0.6rem;
+    stroke-width: 3;
+  }
+
+  /* Task List */
+  ul#task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 450px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  ul#task-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  ul#task-list::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: var(--border-radius);
+  }
+  ul#task-list::-webkit-scrollbar-track {
+    background: #f0f4ff;
+  }
+
+  /* Each task card with subtle 3D floating */
+  li.task {
+    background: #f9fafb;
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow:
+      0 6px 20px rgba(0,0,0,0.03),
+      0 8px 30px rgba(0,0,0,0.04);
+    cursor: default;
+    transition:
+      box-shadow 0.4s var(--ease-custom),
+      transform 0.4s var(--ease-custom);
+    transform-style: preserve-3d;
+    position: relative;
+  }
+
+  /* Floating animation on cards continuously */
+  li.task.float {
+    animation: floatCard 6s ease-in-out infinite;
+  }
+  @keyframes floatCard {
+    0%, 100% { transform: translateY(0) translateZ(0) }
+    50% { transform: translateY(-6px) translateZ(8px) }
+  }
+
+  /* Hover effect floats card with scale and stronger shadow */
+  li.task:hover {
+    transform: translateZ(20px) scale(1.06);
+    box-shadow:
+      0 14px 50px rgba(37, 99, 235, 0.3),
+      0 24px 90px rgba(37, 99, 235, 0.2);
+    z-index: 50;
+  }
+
+  li.task.completed label {
+    text-decoration: line-through;
+    color: #a1a5aa;
+  }
+
+  /* Styling checkbox */
+  li.task input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+    border-radius: 0.25rem;
+    outline-offset: 2px;
+    transition: box-shadow 0.3s ease;
+  }
+
+  li.task input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 8px var(--color-accent);
+  }
+
+  /* Task text label */
+  li.task label {
+    font-weight: 600;
+    font-size: 1.125rem;
+    user-select: text;
+    cursor: pointer;
+    word-break: break-word;
+    color: var(--color-primary);
+  }
+
+  /* Delete button */
+  button.delete-btn {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition:
+      color 0.33s var(--ease-custom),
+      transform 0.25s var(--ease-custom);
+    user-select: none;
+  }
+
+  button.delete-btn:hover,
+  button.delete-btn:focus {
+    color: #ef4444;
+    transform: scale(1.25);
+    outline-offset: 3px;
+    outline: 2px solid transparent;
+  }
+
+  /* Accessibility visually hidden */
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: var(--spacing-lg);
+    font-size: 0.875rem;
+    text-align: center;
+    color: var(--color-text);
+    user-select: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
     .container {
-      width: 100%;
-      max-width: 640px;
-      background: var(--color-bg);
-      box-shadow: 0 4px 12px var(--shadow-light);
-      border-radius: var(--border-radius);
-      padding: var(--spacing-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-md);
+      padding: var(--spacing-md);
     }
-
-    form {
-      display: flex;
-      gap: var(--spacing-sm);
-    }
-
-    form input[type="text"] {
-      flex-grow: 1;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      border: 1.5px solid #d1d5db;
-      border-radius: var(--border-radius);
-      transition: border-color 0.3s ease;
-      outline-offset: 2px;
-    }
-
-    form input[type="text"]:focus {
-      border-color: var(--color-accent);
-      box-shadow: 0 0 8px var(--color-accent);
-    }
-
-    form button {
-      background-color: var(--color-accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--border-radius);
-      padding: 0 1.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      font-size: 1rem;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    form button:hover,
-    form button:focus {
-      background-color: var(--color-accent-hover);
-      transform: scale(1.05);
-      outline-offset: 2px;
-      outline: 2px solid transparent;
-    }
-
-    ul#task-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      max-height: 400px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-sm);
-    }
-
-    ul#task-list::-webkit-scrollbar {
-      width: 8px;
-    }
-    ul#task-list::-webkit-scrollbar-thumb {
-      background: var(--color-accent);
-      border-radius: var(--border-radius);
-    }
-    ul#task-list::-webkit-scrollbar-track {
-      background: #f3f4f6;
-    }
-
     li.task {
-      background-color: #f9fafb;
-      border-radius: var(--border-radius);
-      padding: 0.75rem 1rem;
-      display: grid;
+      padding: 1rem;
       grid-template-columns: auto 1fr auto;
-      align-items: center;
       gap: 1rem;
-      box-shadow: 0 1px 3px var(--shadow-light);
-      transition: box-shadow 0.3s ease, transform 0.2s ease;
-      user-select: none;
     }
-
-    li.task:hover {
-      box-shadow: 0 4px 12px var(--shadow-md);
-      transform: translateY(-2px);
+    h1 {
+      font-size: 3rem;
     }
-
-    li.task.completed label {
-      color: var(--color-text-muted);
-      text-decoration: line-through;
-    }
-
-    li.task input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: var(--color-accent);
-      flex-shrink: 0;
-    }
-
-    li.task label {
-      font-size: 1rem;
-      cursor: pointer;
-      user-select: text;
-      word-break: break-word;
-    }
-
-    button.delete-btn {
-      background: transparent;
-      border: none;
-      color: var(--color-text-muted);
-      cursor: pointer;
-      font-size: 1.25rem;
-      padding: 0;
-      transition: color 0.3s ease;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    button.delete-btn:hover,
-    button.delete-btn:focus {
-      color: #ef4444;
-      outline-offset: 2px;
-      outline: 2px solid transparent;
-    }
-
-    /* Visually hidden for accessibility */
-    .visually-hidden {
-      position: absolute !important;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0 0 0 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    footer {
-      margin-top: var(--spacing-lg);
-      font-size: 0.875rem;
-      text-align: center;
-      color: var(--color-text-muted);
-      user-select: none;
-    }
-
-    @media (max-width: 480px) { 
-      form button {
-        padding: 0 1rem;
-        font-size: 0.9rem;
-      }
-
-      h1 {
-        font-size: 2.25rem;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <h1>To Do List</h1>
-  <div class="container" role="main" aria-label="To Do List Application">
-    <form id="todo-form" aria-label="Add new task">
-      <label for="todo-input" class="visually-hidden">New task</label>
-      <input type="text" id="todo-input" name="todo" placeholder="Enter new task" autocomplete="off" aria-required="true" />
-      <button type="submit" aria-label="Add task">
-        Add
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      </button>
-    </form>
-    <ul id="task-list" aria-live="polite" aria-relevant="additions removals" aria-label="Task list"></ul>
-  </div>
-  <footer>Made with ♥ by Saket Raj</footer>
+  <main>
+    <h1>To Do List</h1>
+    <section class="container" id="container" aria-label="3D To Do List Application">
+      <form id="todo-form" aria-label="Add new task" autocomplete="off" novalidate>
+        <label for="todo-input" class="visually-hidden">New task</label>
+        <input
+          type="text"
+          id="todo-input"
+          name="todo"
+          placeholder="Enter new task"
+          aria-required="true"
+          autocomplete="off"
+          spellcheck="false"
+          minlength="1"
+          required
+          aria-describedby="input-error"
+        />
+        <button type="submit" aria-label="Add task" title="Add task">
+          Add
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </form>
+      <ul id="task-list" aria-live="polite" aria-relevant="additions removals" aria-label="Task list"></ul>
+    </section>
+    <footer>Made with ♥ by Saket Raj 😊</footer>
+  </main>
 
-  <script>
-    (() => {
-      const form = document.getElementById('todo-form');
-      const input = document.getElementById('todo-input');
-      const taskList = document.getElementById('task-list');
+<script>
+  (() => {
+    const form = document.getElementById('todo-form');
+    const input = document.getElementById('todo-input');
+    const taskList = document.getElementById('task-list');
+    const container = document.getElementById('container');
 
-      // Load tasks from localStorage or initialize empty array
-      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    // Load tasks from localStorage or initialize empty array
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-      // Save tasks to localStorage
-      function saveTasks() {
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+    // Save tasks to localStorage
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Randomly stagger initial floating animation delay
+    function getRandomDelay(index) {
+      return (index * 0.2 + (Math.random() * 0.6)) + 's';
+    }
+
+    // Render tasks list
+    function render() {
+      taskList.innerHTML = '';
+      if (tasks.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.textContent = 'No tasks yet. Add a task to get started!';
+        emptyItem.style.color = 'var(--color-text)';
+        emptyItem.style.fontStyle = 'italic';
+        emptyItem.style.padding = '1rem';
+        emptyItem.style.textAlign = 'center';
+        taskList.appendChild(emptyItem);
+        return;
       }
+      tasks.forEach(({ id, text, completed }, idx) => {
+        const li = document.createElement('li');
+        li.className = 'task float';
+        if (completed) li.classList.add('completed');
+        li.setAttribute('data-id', id);
 
-      // Render the tasks list
-      function render() {
-        taskList.innerHTML = '';
-        if (tasks.length === 0) {
-          const emptyItem = document.createElement('li');
-          emptyItem.textContent = 'No tasks yet. Add a task to get started!';
-          emptyItem.style.color = 'var(--color-text-muted)';
-          emptyItem.style.fontStyle = 'italic';
-          emptyItem.style.padding = '1rem';
-          taskList.appendChild(emptyItem);
-          return;
-        }
-        tasks.forEach(({ id, text, completed }) => {
-          const li = document.createElement('li');
-          li.className = 'task';
-          if (completed) li.classList.add('completed');
-          li.setAttribute('data-id', id);
+        // Stagger the floating animation delay for natural effect
+        li.style.animationDelay = getRandomDelay(idx);
 
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = 'check-' + id;
-          checkbox.checked = completed;
-          checkbox.setAttribute('aria-label', 'Mark task as completed');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'check-' + id;
+        checkbox.checked = completed;
+        checkbox.setAttribute('aria-label', 'Mark task as completed');
 
-          const label = document.createElement('label');
-          label.htmlFor = 'check-' + id;
-          label.textContent = text;
+        const label = document.createElement('label');
+        label.htmlFor = 'check-' + id;
+        label.textContent = text;
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'delete-btn';
-          deleteBtn.setAttribute('aria-label', 'Delete task');
-          deleteBtn.innerHTML = '&times;';
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.setAttribute('aria-label', 'Delete task');
+        deleteBtn.innerHTML = '&times;';
 
-          li.appendChild(checkbox);
-          li.appendChild(label);
-          li.appendChild(deleteBtn);
-          taskList.appendChild(li);
+        li.appendChild(checkbox);
+        li.appendChild(label);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
 
-          checkbox.addEventListener('change', () => {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-              task.completed = checkbox.checked;
-              saveTasks();
-              render();
-            }
-          });
-          deleteBtn.addEventListener('click', () => {
-            tasks = tasks.filter(t => t.id !== id);
+        checkbox.addEventListener('change', () => {
+          const task = tasks.find(t => t.id === id);
+          if (task) {
+            task.completed = checkbox.checked;
             saveTasks();
             render();
-            input.focus();
-          });
+          }
         });
-      }
 
-      // Add new task
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (text.length === 0) return;
-        tasks.push({
-          id: Date.now().toString(),
-          text,
-          completed: false,
+        deleteBtn.addEventListener('click', () => {
+          tasks = tasks.filter(t => t.id !== id);
+          saveTasks();
+          render();
+          input.focus();
         });
-        saveTasks();
-        render();
-        input.value = '';
-        input.focus();
       });
+    }
 
+    // Add new task handler
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (text.length === 0) return;
+      tasks.push({
+        id: Date.now().toString(),
+        text,
+        completed: false,
+      });
+      saveTasks();
       render();
-    })();
-  </script>
+      input.value = '';
+      input.focus();
+    });
+
+    render();
+
+    // 3D interactive tilt effect on container according to mouse position
+    container.addEventListener('mousemove', e => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left; // x position within container
+      const y = e.clientY - rect.top;  // y position within container
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      // Rotation ranges (max ±8deg)
+      const rotateX = ((y - centerY) / centerY) * 8;
+      const rotateY = ((x - centerX) / centerX) * -8;
+
+      container.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+    });
+
+    container.addEventListener('mouseleave', () => {
+      container.style.transform = `rotateX(0) rotateY(0) translateZ(0)`;
+    });
+
+    // Enable floating animation on container
+    container.classList.add('animate');
+  })();
+</script>
 </body>
 </html>
-
